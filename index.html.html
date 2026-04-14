@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PHQ-9 | Cuestionario de Salud del Paciente</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Source+Serif+4:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>emailjs.init("Wsu2b1fzHpWs8-yeN");</script>
+<style>
+  :root {
+    --ink: #1a1a2e; --paper: #f5f0e8; --cream: #ede8dc;
+    --teal: #2a7c7c; --teal-light: #3a9b9b; --teal-pale: #e0f0f0;
+    --rust: #b85c38; --muted: #6b6b7b; --border: #c8c0b0;
+    --shadow: rgba(26,26,46,0.10);
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body {
+    background-color:var(--paper);
+    background-image:
+      radial-gradient(ellipse at 20% 10%, rgba(42,124,124,0.07) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 90%, rgba(184,92,56,0.06) 0%, transparent 50%);
+    font-family:'Source Serif 4',Georgia,serif;
+    color:var(--ink); min-height:100vh; padding:2rem 1rem 4rem;
+  }
+  .container { max-width:720px; margin:0 auto; }
+
+  .header { text-align:center; padding:2.5rem 2rem 2rem; border-bottom:2px solid var(--border); margin-bottom:2rem; }
+  .header::before { content:''; display:block; width:60px; height:3px; background:var(--teal); margin:0 auto 1.2rem; border-radius:2px; }
+  .header-label { font-size:.75rem; font-weight:500; letter-spacing:.18em; text-transform:uppercase; color:var(--teal); margin-bottom:.6rem; }
+  .header h1 { font-family:'Playfair Display',serif; font-size:2.2rem; font-weight:600; line-height:1.2; margin-bottom:.5rem; }
+  .header h1 span { font-style:italic; color:var(--teal); }
+  .header p { font-size:.95rem; color:var(--muted); font-weight:300; max-width:520px; margin:0 auto; line-height:1.6; }
+
+  .card { background:#fff; border:1px solid var(--border); border-radius:4px; padding:2rem; margin-bottom:1.5rem; box-shadow:0 2px 12px var(--shadow); }
+  .card-title { font-family:'Playfair Display',serif; font-size:1.05rem; font-weight:600; margin-bottom:.4rem; }
+  .card-subtitle { font-size:.85rem; color:var(--muted); margin-bottom:1.4rem; line-height:1.5; }
+
+  .opt-toggle { display:flex; align-items:center; gap:.6rem; font-size:.88rem; color:var(--muted); margin-bottom:1.2rem; cursor:pointer; user-select:none; }
+  .opt-toggle input[type="checkbox"] { accent-color:var(--teal); width:16px; height:16px; cursor:pointer; }
+
+  .fields-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+  @media(max-width:540px){ .fields-grid { grid-template-columns:1fr; } }
+  .field-full { grid-column:1/-1; }
+  .field label { display:block; font-size:.78rem; font-weight:500; letter-spacing:.08em; text-transform:uppercase; color:var(--teal); margin-bottom:.35rem; }
+  .field input { width:100%; border:1px solid var(--border); border-radius:3px; padding:.6rem .8rem; font-family:'Source Serif 4',serif; font-size:.95rem; color:var(--ink); background:var(--paper); transition:border-color .2s,box-shadow .2s; outline:none; }
+  .field input:focus { border-color:var(--teal); box-shadow:0 0 0 3px rgba(42,124,124,.12); }
+  .field input:disabled { opacity:.45; cursor:not-allowed; }
+
+  .instruction { background:var(--teal-pale); border-left:3px solid var(--teal); border-radius:2px; padding:.9rem 1.1rem; font-size:.9rem; color:var(--ink); margin-bottom:1.5rem; line-height:1.6; }
+
+  .question-block { margin-bottom:1.6rem; padding-bottom:1.6rem; border-bottom:1px solid var(--cream); }
+  .question-block:last-of-type { border-bottom:none; margin-bottom:0; padding-bottom:0; }
+  .question-num { font-size:.72rem; font-weight:500; letter-spacing:.15em; text-transform:uppercase; color:var(--teal); margin-bottom:.3rem; }
+  .question-text { font-size:1rem; color:var(--ink); margin-bottom:.9rem; line-height:1.5; }
+
+  .options { display:grid; grid-template-columns:repeat(2,1fr); gap:.5rem; }
+  @media(max-width:480px){ .options { grid-template-columns:1fr; } }
+  .option-label { display:flex; align-items:center; gap:.6rem; padding:.55rem .8rem; border:1px solid var(--border); border-radius:3px; cursor:pointer; font-size:.88rem; color:var(--ink); background:var(--paper); transition:border-color .18s,background .18s; line-height:1.3; }
+  .option-label:hover { border-color:var(--teal); background:var(--teal-pale); }
+  .option-label input[type="radio"] { display:none; }
+  .option-label.selected { border-color:var(--teal); background:var(--teal-pale); color:var(--teal); font-weight:500; }
+  .option-dot { width:14px; height:14px; border-radius:50%; border:2px solid var(--border); flex-shrink:0; transition:border-color .18s,background .18s; }
+  .option-label.selected .option-dot { border-color:var(--teal); background:var(--teal); }
+
+  .progress-bar-wrap { background:var(--cream); border-radius:99px; height:6px; overflow:hidden; margin-bottom:.4rem; }
+  .progress-bar-fill { height:100%; background:linear-gradient(90deg,var(--teal),var(--teal-light)); border-radius:99px; transition:width .4s ease; width:0%; }
+  .progress-text { font-size:.78rem; color:var(--muted); text-align:right; }
+
+  .submit-btn { display:block; width:100%; padding:.95rem; background:var(--teal); color:#fff; font-family:'Source Serif 4',serif; font-size:1rem; font-weight:500; border:none; border-radius:3px; cursor:pointer; letter-spacing:.04em; transition:background .2s,transform .1s; margin-top:.5rem; }
+  .submit-btn:hover { background:var(--teal-light); }
+  .submit-btn:active { transform:scale(.99); }
+  .error-msg { display:none; color:var(--rust); font-size:.85rem; margin-top:.6rem; text-align:center; }
+
+  .sending-overlay { display:none; position:fixed; inset:0; background:rgba(245,240,232,.88); backdrop-filter:blur(4px); z-index:999; align-items:center; justify-content:center; flex-direction:column; gap:1rem; }
+  .sending-overlay.active { display:flex; }
+  .spinner { width:44px; height:44px; border:3px solid var(--cream); border-top-color:var(--teal); border-radius:50%; animation:spin .8s linear infinite; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  .sending-text { font-family:'Playfair Display',serif; font-size:1.1rem; color:var(--teal); }
+
+  #results-section { display:none; }
+  .result-card { background:#fff; border:2px solid var(--teal); border-radius:4px; padding:2.5rem 2rem; box-shadow:0 4px 24px var(--shadow); text-align:center; margin-bottom:1.5rem; }
+  .result-score-label { font-size:.75rem; letter-spacing:.18em; text-transform:uppercase; color:var(--teal); margin-bottom:.4rem; font-weight:500; }
+  .result-score-num { font-family:'Playfair Display',serif; font-size:4rem; font-weight:600; color:var(--ink); line-height:1; margin-bottom:.2rem; }
+  .result-score-max { font-size:1.2rem; color:var(--muted); }
+  .result-severity { font-family:'Playfair Display',serif; font-size:1.5rem; font-weight:600; margin:.7rem 0 .4rem; }
+  .result-description { font-size:.95rem; color:var(--muted); max-width:500px; margin:0 auto 1.5rem; line-height:1.65; }
+  .result-bar-wrap { background:var(--cream); border-radius:99px; height:10px; overflow:hidden; max-width:400px; margin:0 auto 1.2rem; }
+  .result-bar-fill { height:100%; border-radius:99px; transition:width 1s ease; }
+  .result-recommendation { background:var(--teal-pale); border-left:3px solid var(--teal); border-radius:2px; padding:1rem 1.2rem; font-size:.9rem; color:var(--ink); text-align:left; line-height:1.65; max-width:500px; margin:0 auto; }
+  .result-recommendation strong { color:var(--teal); }
+  .email-status { font-size:.85rem; margin-top:1rem; padding:.6rem 1rem; border-radius:3px; text-align:center; display:none; }
+  .email-status.success { background:#e0f5e9; color:#2a6b3c; border:1px solid #a8d8b8; }
+  .email-status.error { background:#fdecea; color:#8b1a1a; border:1px solid #f0b0a0; }
+  .result-disclaimer { font-size:.78rem; color:var(--muted); text-align:center; margin-top:1rem; font-style:italic; line-height:1.5; }
+
+  .restart-btn { display:inline-block; margin-top:1.5rem; padding:.7rem 2rem; background:transparent; border:1.5px solid var(--teal); color:var(--teal); font-family:'Source Serif 4',serif; font-size:.9rem; border-radius:3px; cursor:pointer; transition:background .2s,color .2s; }
+  .restart-btn:hover { background:var(--teal); color:#fff; }
+
+  .sev-minimal{color:#2a7c4c} .sev-mild{color:#7c6b2a} .sev-moderate{color:#b87a2a}
+  .sev-moderately-severe{color:var(--rust)} .sev-severe{color:#8b1a1a}
+  .bar-minimal{background:#2a7c4c} .bar-mild{background:#c9a84c} .bar-moderate{background:#b87a2a}
+  .bar-moderately-severe{background:var(--rust)} .bar-severe{background:#8b1a1a}
+
+  .footer { text-align:center; font-size:.78rem; color:var(--muted); margin-top:2.5rem; padding-top:1.5rem; border-top:1px solid var(--border); line-height:1.6; }
+</style>
+</head>
+<body>
+
+<div class="sending-overlay" id="sending-overlay">
+  <div class="spinner"></div>
+  <div class="sending-text">Enviando resultados…</div>
+</div>
+
+<div class="container">
+  <div class="header">
+    <div class="header-label">Evaluación de Salud Mental</div>
+    <h1>PHQ-9 <span>Cuestionario</span></h1>
+    <p>Cuestionario sobre la Salud del Paciente — una herramienta validada para evaluar la presencia y severidad de síntomas depresivos.</p>
+  </div>
+
+  <div id="form-section">
+    <div class="card">
+      <div class="card-title">Información del participante</div>
+      <div class="card-subtitle">Su información es opcional y confidencial. Puede omitirla si lo prefiere.</div>
+      <label class="opt-toggle">
+        <input type="checkbox" id="optout-check" onchange="toggleFields(this)">
+        Prefiero no proporcionar mis datos personales
+      </label>
+      <div class="fields-grid" id="personal-fields">
+        <div class="field field-full">
+          <label for="p-name">Nombre completo</label>
+          <input type="text" id="p-name" placeholder="Ej. María González">
+        </div>
+        <div class="field">
+          <label for="p-phone">Teléfono</label>
+          <input type="tel" id="p-phone" placeholder="Ej. 771 234 5678">
+        </div>
+        <div class="field">
+          <label for="p-email">Correo electrónico</label>
+          <input type="email" id="p-email" placeholder="correo@ejemplo.com">
+        </div>
+      </div>
+    </div>
+
+    <div class="instruction">
+      <strong>Instrucciones:</strong> Durante las últimas <strong>2 semanas</strong>, ¿con qué frecuencia le han molestado los siguientes problemas? Marque la opción que mejor describa su experiencia.
+    </div>
+
+    <div class="card">
+      <div style="margin-bottom:1.2rem;">
+        <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progress-fill"></div></div>
+        <div class="progress-text" id="progress-text">0 de 9 preguntas respondidas</div>
+      </div>
+      <div id="questions-container"></div>
+      <div class="error-msg" id="error-msg">⚠ Por favor responda todas las preguntas antes de continuar.</div>
+      <button class="submit-btn" onclick="submitForm()">Ver resultado</button>
+    </div>
+  </div>
+
+  <div id="results-section">
+    <div class="result-card">
+      <div class="result-score-label">Puntuación total</div>
+      <div class="result-score-num" id="res-score">0<span class="result-score-max">/27</span></div>
+      <div class="result-severity" id="res-severity"></div>
+      <div class="result-bar-wrap"><div class="result-bar-fill" id="res-bar"></div></div>
+      <p class="result-description" id="res-description"></p>
+      <div class="result-recommendation" id="res-recommendation"></div>
+      <div class="email-status" id="email-status"></div>
+      <p class="result-disclaimer">Este cuestionario es una herramienta de tamizaje, no un diagnóstico clínico. Los resultados deben ser interpretados por un profesional de la salud mental.</p>
+      <br>
+      <button class="restart-btn" onclick="restartForm()">Responder de nuevo</button>
+    </div>
+  </div>
+
+  <div class="footer">
+    PHQ-9 © Pfizer Inc. Instrumento de dominio público para uso clínico y de investigación.<br>
+    Kroenke K, Spitzer RL, Williams JBW. (2001). <em>J Gen Intern Med.</em> 16(9):606-613.
+  </div>
+</div>
+
+<script>
+const EMAILJS_SERVICE_ID  = "service_trkm9cj";
+const EMAILJS_TEMPLATE_ID = "template_av46w8g";
+
+const questions = [
+  "Poco interés o placer en hacer cosas",
+  "Sentirse desanimado/a, deprimido/a o sin esperanza",
+  "Tener problemas para dormir, mantenerse dormido/a o dormir demasiado",
+  "Sentirse cansado/a o tener poca energía",
+  "Tener poco apetito o comer en exceso",
+  "Sentirse mal consigo mismo/a, o sentir que es un fracaso o que ha fallado a su familia o a usted mismo/a",
+  "Tener dificultad para concentrarse en cosas como leer el periódico o ver televisión",
+  "Moverse o hablar tan lento que otras personas podrían haberlo notado; o lo contrario — estar tan inquieto/a o agitado/a que se mueve mucho más de lo usual",
+  "Tener pensamientos de que sería mejor estar muerto/a o de hacerse daño de alguna manera"
+];
+
+const optionLabels = ["Para nada (0)","Varios días (1)","Más de la mitad de los días (2)","Casi todos los días (3)"];
+let answers = new Array(9).fill(null);
+
+function buildQuestions() {
+  const container = document.getElementById('questions-container');
+  questions.forEach((q, qi) => {
+    const block = document.createElement('div');
+    block.className = 'question-block';
+    block.innerHTML = `
+      <div class="question-num">Pregunta ${qi + 1}</div>
+      <div class="question-text">${q}</div>
+      <div class="options">
+        ${optionLabels.map((lbl, oi) => `
+          <label class="option-label" id="opt-${qi}-${oi}" onclick="selectOption(${qi},${oi})">
+            <input type="radio" name="q${qi}" value="${oi}">
+            <span class="option-dot"></span>${lbl}
+          </label>`).join('')}
+      </div>`;
+    container.appendChild(block);
+  });
+}
+
+function selectOption(qi, oi) {
+  answers[qi] = oi;
+  for (let i = 0; i < 4; i++) { const el = document.getElementById(`opt-${qi}-${i}`); if(el) el.classList.remove('selected'); }
+  document.getElementById(`opt-${qi}-${oi}`).classList.add('selected');
+  updateProgress();
+}
+
+function updateProgress() {
+  const n = answers.filter(a => a !== null).length;
+  document.getElementById('progress-fill').style.width = (n/9*100)+'%';
+  document.getElementById('progress-text').textContent = `${n} de 9 preguntas respondidas`;
+}
+
+function toggleFields(cb) {
+  const fields = document.getElementById('personal-fields');
+  fields.querySelectorAll('input[type=text],input[type=tel],input[type=email]').forEach(i => i.disabled = cb.checked);
+  fields.style.opacity = cb.checked ? '0.4' : '1';
+}
+
+function getSeverity(t) {
+  if (t<=4)  return {level:"Sin depresión significativa",cls:"minimal",
+    desc:"Su puntaje sugiere una ausencia o mínima presencia de síntomas depresivos en las últimas dos semanas. Esto es una señal positiva de bienestar emocional.",
+    rec:"<strong>Recomendación:</strong> Continúe con hábitos de autocuidado como ejercicio regular, sueño adecuado y conexiones sociales. Una evaluación periódica puede ser útil."};
+  if (t<=9)  return {level:"Depresión leve",cls:"mild",
+    desc:"Su puntaje indica la presencia de síntomas depresivos leves. Aunque no necesariamente requieren tratamiento intensivo, merecen atención.",
+    rec:"<strong>Recomendación:</strong> Se sugiere una consulta con un profesional de salud mental para una evaluación más detallada. Estrategias de manejo del estrés pueden ser beneficiosas."};
+  if (t<=14) return {level:"Depresión moderada",cls:"moderate",
+    desc:"Su puntaje refleja síntomas depresivos de intensidad moderada que pueden estar afectando su funcionamiento cotidiano en diversas áreas.",
+    rec:"<strong>Recomendación:</strong> Se recomienda buscar atención con un psicólogo o psiquiatra. La psicoterapia y/o medicación han demostrado ser efectivas en este nivel."};
+  if (t<=19) return {level:"Depresión moderadamente severa",cls:"moderately-severe",
+    desc:"Sus síntomas probablemente están afectando de manera significativa su vida diaria y relaciones interpersonales.",
+    rec:"<strong>Recomendación:</strong> Es importante consultar a un profesional de salud mental lo antes posible para una evaluación clínica completa y un plan de tratamiento activo."};
+  return {level:"Depresión severa",cls:"severe",
+    desc:"Su puntaje refleja una depresión severa. Es fundamental recibir atención profesional inmediata.",
+    rec:"<strong>Recomendación urgente:</strong> Contacte a un profesional de salud mental o acuda a urgencias si es necesario. SAPTEL: <strong>55 5259-8121</strong> (24 horas). No está solo/a."};
+}
+
+async function submitForm() {
+  if (answers.some(a => a===null)) {
+    document.getElementById('error-msg').style.display='block';
+    document.querySelectorAll('.question-block')[answers.indexOf(null)]?.scrollIntoView({behavior:'smooth',block:'center'});
+    return;
+  }
+  document.getElementById('error-msg').style.display='none';
+  const total = answers.reduce((s,a)=>s+a,0);
+  const r = getSeverity(total);
+
+  document.getElementById('res-score').innerHTML=`${total}<span class="result-score-max">/27</span>`;
+  const sevEl=document.getElementById('res-severity');
+  sevEl.textContent=r.level; sevEl.className='result-severity sev-'+r.cls;
+  document.getElementById('res-description').textContent=r.desc;
+  document.getElementById('res-recommendation').innerHTML=r.rec;
+  const bar=document.getElementById('res-bar');
+  bar.className='result-bar-fill bar-'+r.cls;
+
+  document.getElementById('form-section').style.display='none';
+  document.getElementById('results-section').style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
+  setTimeout(()=>{ bar.style.width=(total/27*100)+'%'; },150);
+
+  const optedOut=document.getElementById('optout-check').checked;
+  const name=document.getElementById('p-name').value.trim();
+  const phone=document.getElementById('p-phone').value.trim();
+  const email=document.getElementById('p-email').value.trim();
+
+  if (!optedOut && (name||phone||email)) {
+    document.getElementById('sending-overlay').classList.add('active');
+    await sendEmail({name,phone,email,total,r});
+    document.getElementById('sending-overlay').classList.remove('active');
+  }
+}
+
+async function sendEmail({name,phone,email,total,r}) {
+  const now=new Date().toLocaleString('es-MX',{timeZone:'America/Mexico_City',dateStyle:'full',timeStyle:'short'});
+  const answersText=questions.map((q,i)=>`${i+1}. ${q}\n   → ${optionLabels[answers[i]]}`).join('\n\n');
+
+  const params = {
+    to_email:          'the.neon.moon.project@gmail.com',
+    subject:           `PHQ-9 Resultado — ${name||'Participante anónimo'} — Puntaje: ${total}/27`,
+    participant_name:  name  ||'(no proporcionado)',
+    participant_phone: phone ||'(no proporcionado)',
+    participant_email: email ||'(no proporcionado)',
+    score:             `${total} / 27`,
+    severity:          r.level,
+    date:              now,
+    answers:           answersText
+  };
+
+  const statusEl=document.getElementById('email-status');
+  try {
+    await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, params);
+    statusEl.style.display='block';
+    statusEl.className='email-status success';
+    statusEl.textContent='✓ Sus resultados han sido enviados al equipo clínico de forma segura.';
+  } catch(err) {
+    console.error('EmailJS error:',err);
+    statusEl.style.display='block';
+    statusEl.className='email-status error';
+    statusEl.textContent='⚠ No se pudo enviar la notificación. Sus resultados siguen siendo válidos.';
+  }
+}
+
+function restartForm() {
+  answers=new Array(9).fill(null);
+  document.querySelectorAll('.option-label').forEach(el=>el.classList.remove('selected'));
+  document.getElementById('progress-fill').style.width='0%';
+  document.getElementById('progress-text').textContent='0 de 9 preguntas respondidas';
+  document.getElementById('results-section').style.display='none';
+  document.getElementById('form-section').style.display='block';
+  document.getElementById('email-status').style.display='none';
+  document.getElementById('optout-check').checked=false;
+  const fields=document.getElementById('personal-fields');
+  fields.querySelectorAll('input').forEach(i=>{i.disabled=false;i.value='';});
+  fields.style.opacity='1';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+buildQuestions();
+</script>
+</body>
+</html>
